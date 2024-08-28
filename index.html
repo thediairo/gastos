@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-light" style="background-color: rgb(231, 205, 205);">
+        <div class="container-fluid" style="background-color: rgb(231, 205, 205);">
+          <a class="navbar-brand" href="#">
+            <img src="img/3700484-call-delivery-man-phone-shipping-support_108751.png" alt="" width="50" height="30" class="d-inline-block align-text-top">
+            <h1 style="position: absolute; left: 65px; top: 5px;">Control de gastos</h1>
+          </a>
+        </div>
+    </nav>
+    <br>
+    <div class="card text-center m-auto" style="background-color: rgb(231, 190, 190); width: 500px;" id="dp">
+        <div class="card-header">
+            <h1>Presupuesto</h1>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Presupuesto inicial</h5>
+            <input type="number" class="card-text" id="pre" min="0" max="1000000"><br><br>
+            <a href="#" class="btn btn-primary" id="btnpre">Iniciar</a>
+        </div>
+        <div class="card-footer text-muted"></div>
+    </div>
+    <br><br>
+    <div class="card text-center m-auto" style="background-color: rgb(235, 184, 184); width: 500px; visibility: collapse;" id="g">
+        <div class="card-header">
+            <h1>Gastos</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agre">
+                <img src="img/1486485588-add-create-new-math-sign-cross-plus_81186.png" width="20px">
+            </button>
+            <div class="row">
+                <div class="col">
+                    <div class="aling-middle">
+                        <circle-progress value="0" max="100" min="0" text-format="percent" id="bar"></circle-progress>
+                    </div>
+                </div>
+                <div class="col">
+                    <p id="presu"></p>
+                    <p id="dis"></p>
+                    <p id="gas">0</p>
+                    <button class="btn btn-danger" id="re">Reset</button>
+                </div>
+            </div>
+            <hr>
+            <div class="card-body">
+                <h1 class="card-title">Categoria</h1>
+                <select id="cate">
+                    <option value="todos">todos</option>
+                    <option value="comida">comida</option>
+                    <option value="ahorro">ahorro</option>
+                    <option value="casa">casa</option>
+                    <option value="ocio">ocio</option>
+                    <option value="salud">salud</option>
+                    <option value="varios">varios</option>
+                    <option value="suscripciones">suscripciones</option>
+                </select>
+            </div>
+            <div class="card-footer text-muted">
+                <h1>Gastos</h1>
+                <div id="total"></div>
+                <small>No hay</small>
+                <div>
+                    <ul id="lista" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="agre" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Nuevo gasto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Tipo de gasto</h3>
+                    <select id="cate2">
+                        <option value="comida">comida</option>
+                        <option value="ahorro">ahorro</option>
+                        <option value="casa">casa</option>
+                        <option value="ocio">ocio</option>
+                        <option value="salud">salud</option>
+                        <option value="varios">varios</option>
+                        <option value="suscripciones">suscripciones</option>
+                    </select>
+                    <h3>Costo</h3>
+                    <input type="number" id="cos">
+                    <h3>Descripcion</h3>
+                    <input type="text" id="des">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="guar">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editGastoModal" tabindex="-1" aria-labelledby="editGastoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editGastoLabel">Editar gasto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Tipo de gasto</h3>
+                    <select id="editCate">
+                        <option value="comida">comida</option>
+                        <option value="ahorro">ahorro</option>
+                        <option value="casa">casa</option>
+                        <option value="ocio">ocio</option>
+                        <option value="salud">salud</option>
+                        <option value="varios">varios</option>
+                        <option value="suscripciones">suscripciones</option>
+                    </select>
+                    <h3>Costo</h3>
+                    <input type="number" id="editCos">
+                    <h3>Descripcion</h3>
+                    <input type="text" id="editDes">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEdit" data-bs-dismiss="modal">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/js-circle-progress/dist/circle-progress.min.js" type="module"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="sweetalert2.all.min.js"></script>
+    <script>
+        var pre;
+        var pre2;
+        var gastos = JSON.parse(localStorage.getItem("gastos")) || [];
+        var deuda = parseFloat(localStorage.getItem("deuda")) || 0;
+        var editIndex = null;
+
+        function updateGastosList(categoria) {
+            const filteredGastos = categoria === "todos" ? gastos : gastos.filter(gasto => gasto.cat === categoria);
+            let lis = '';
+            filteredGastos.forEach((gasto, index) => {
+                lis += `
+                <li class='list-group-item'>
+                    Tipo : <img src="${gasto.cate}" alt="" style="width: 50px; height: 50px;">
+                    Costo : ${gasto.cos}
+                    Descripción : ${gasto.des}
+                    <button class="btn btn-danger btn-sm float-end" onclick="deleteGasto(${index})">Eliminar</button>
+                    <button class="btn btn-warning btn-sm float-end me-2" onclick="editGasto(${index})">Editar</button>
+                </li>`;
+            });
+            document.getElementById("lista").innerHTML = lis;
+        }
+
+        function deleteGasto(index) {
+            const gasto = gastos[index];
+            deuda -= gasto.cos;
+            localStorage.setItem("deuda", deuda);
+
+            let pre2 = parseFloat(document.getElementById("dis").innerText.split(': ')[1]);
+            pre2 += gasto.cos;
+
+            gastos.splice(index, 1);
+            localStorage.setItem("gastos", JSON.stringify(gastos));
+            updateGastosList(document.getElementById("cate").value);
+            updateTotals();
+        }
+
+        function editGasto(index) {
+            const gasto = gastos[index];
+            document.getElementById("editCate").value = gasto.cat;
+            document.getElementById("editCos").value = gasto.cos;
+            document.getElementById("editDes").value = gasto.des;
+            editIndex = index;
+            var editModal = new bootstrap.Modal(document.getElementById('editGastoModal'));
+            editModal.show();
+        }
+
+        document.getElementById("saveEdit").onclick = () => {
+            const oldGasto = gastos[editIndex];
+            const editedGasto = {
+                des: document.getElementById("editDes").value,
+                cat: document.getElementById("editCate").value,
+                cos: parseFloat(document.getElementById("editCos").value),
+                cate: getCategoryImage(document.getElementById("editCate").value)
+            };
+
+            if (isNaN(editedGasto.cos) || editedGasto.cos <= 0) {
+                Swal.fire({ icon: "error", title: "Costo inválido" });
+                return;
+            }
+
+            pre2 = parseFloat(document.getElementById("dis").innerText.split(': ')[1]);
+
+            if (editedGasto.cos > (pre2 + oldGasto.cos)) {
+                Swal.fire({ icon: "error", title: "No hay suficiente presupuesto" });
+                return;
+            }
+
+            deuda = deuda - oldGasto.cos + editedGasto.cos;
+            localStorage.setItem("deuda", deuda);
+
+            pre2 = pre2 + oldGasto.cos - editedGasto.cos;
+            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+
+            gastos[editIndex] = editedGasto;
+            localStorage.setItem("gastos", JSON.stringify(gastos));
+            updateGastosList(document.getElementById("cate").value);
+            updateTotals();
+            console.log(pre2);
+        };
+
+        function getCategoryImage(categoria) {
+            switch (categoria) {
+                case "comida":
+                    return "img/comida.png";
+                case "ahorro":
+                    return "img/ahorro.png";
+                case "casa":
+                    return "img/casa.png";
+                case "ocio":
+                    return "img/ocio.png";
+                case "salud":
+                    return "img/salud.png";
+                case "suscripciones":
+                    return "img/sus.png";
+                    case "varios":
+                    return "img/varios.png";
+                default:
+                    return "";
+            }
+        }
+
+        document.getElementById("btnpre").onclick = () => {
+            console.log(pre2);
+            pre = parseFloat(document.getElementById("pre").value);
+            pre2 = pre;
+            if (isNaN(pre) || pre <= 0) {
+                Swal.fire({ icon: "error", title: "Más presupuesto" });
+            } else {
+                document.getElementById("g").style = "background-color: rgb(235, 184, 184); width: 500px; visibility: visible; position: absolute; top: 100px; left: 700px";
+                document.getElementById("dp").style = "visibility: collapse;";
+                document.getElementById("presu").innerHTML = "Presupuesto: " + pre;
+                document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+                console.log(pre2);
+                console.log(pre);
+
+                document.getElementById("guar").onclick = () => {
+                    var des = document.getElementById("des").value;
+                    var cat = document.getElementById("cate2").value;
+                    var cos = parseFloat(document.getElementById("cos").value);
+                    console.log(pre2);
+                    console.log(pre);
+
+                    if (pre2 < cos) {
+                        Swal.fire({ icon: "error", title: "No hay fondos" });
+                    } else {
+                        console.log(pre2);
+                        deuda += cos;
+                        localStorage.setItem("deuda", deuda);
+
+                        pre2 -= cos;
+                        document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+
+                        document.getElementById("gas").innerHTML = deuda;
+                        document.getElementById("bar").max = pre;
+                        document.getElementById("bar").value = deuda;
+
+                        const gasto = { des, cat, cos, cate: getCategoryImage(cat) };
+                        gastos.push(gasto);
+                        localStorage.setItem("gastos", JSON.stringify(gastos));
+
+                        updateGastosList(document.getElementById("cate").value);
+                    }
+                };
+            }
+        };
+
+        document.getElementById("cate").onchange = () => {
+            updateGastosList(document.getElementById("cate").value);
+        };
+
+        function updateTotals() {
+            let pre2 = pre - deuda;
+            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+            document.getElementById("gas").innerHTML = deuda;
+            document.getElementById("bar").max = pre;
+            document.getElementById("bar").value = deuda;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateGastosList(document.getElementById("cate").value);
+        });
+
+        document.getElementById("re").onclick = () => {
+            localStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
