@@ -307,8 +307,21 @@
             updateGastosList(document.getElementById("cate").value || "todos");
         }
         document.getElementById("re").onclick=()=>{
+          
+          Swal.fire({
+        title: "Seguro?? ",
+        showDenyButton: true,
+        confirmButtonText: "Tanto como que televisa le regalo 3 o mas campeonatos al america",
+        confirmButtonColor: '#20c997',
+        denyButtonText: "Tienes razon mejor no, pero a otra opción tiene razon"
+    
+    }).then ( async (result) => {
+        if (result.isConfirmed) {
           localStorage.clear();
           location.reload();
+        }
+    });
+         
         }
     </script>
 </body>
