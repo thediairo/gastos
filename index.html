@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Control de Gastos</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 </head>
 <body>
     <nav class="navbar navbar-light" style="background-color: rgb(231, 205, 205);">
         <div class="container-fluid" style="background-color: rgb(231, 205, 205);">
-          <a class="navbar-brand" href="#">
-            <img src="img/3700484-call-delivery-man-phone-shipping-support_108751.png" alt="" width="50" height="30" class="d-inline-block align-text-top">
-            <h1 style="position: absolute; left: 65px; top: 5px;">Control de gastos</h1>
-          </a>
+            <a class="navbar-brand" href="#">
+                <img src="img/3700484-call-delivery-man-phone-shipping-support_108751.png" alt="" width="50" height="30" class="d-inline-block align-text-top">
+                <h1 style="position: absolute; left: 65px; top: 5px;">Control de gastos</h1>
+            </a>
         </div>
     </nav>
     <br>
@@ -36,14 +36,14 @@
             </button>
             <div class="row">
                 <div class="col">
-                    <div class="aling-middle">
+                    <div class="align-middle">
                         <circle-progress value="0" max="100" min="0" text-format="percent" id="bar"></circle-progress>
                     </div>
                 </div>
                 <div class="col">
                     <p id="presu"></p>
                     <p id="dis"></p>
-                    <p id="gas">0</p>
+                    <p id="gas">Gastado: 0</p>
                     <button class="btn btn-danger" id="re">Reset</button>
                 </div>
             </div>
@@ -90,7 +90,7 @@
                         <option value="suscripciones">suscripciones</option>
                     </select>
                     <h3>Costo</h3>
-                    <input type="number" id="cos">
+                    <input type="number" id="cos" min="1">
                     <h3>Descripcion</h3>
                     <input type="text" id="des">
                 </div>
@@ -120,7 +120,7 @@
                         <option value="suscripciones">suscripciones</option>
                     </select>
                     <h3>Costo</h3>
-                    <input type="number" id="editCos">
+                    <input type="number" id="editCos" min="1">
                     <h3>Descripcion</h3>
                     <input type="text" id="editDes">
                 </div>
@@ -144,130 +144,133 @@
         function updateGastosList(categoria) {
             const filteredGastos = categoria === "todos" ? gastos : gastos.filter(gasto => gasto.cat === categoria);
             let lis = '';
+            let totalGastos = 0;
+
             filteredGastos.forEach((gasto, index) => {
+                totalGastos += gasto.cos;
                 lis += `
                 <li class='list-group-item'>
                     Tipo : <img src="${gasto.cate}" alt="" style="width: 50px; height: 50px;">
                     Costo : ${gasto.cos}
                     Descripción : ${gasto.des}
-                    <button class="btn btn-danger btn-sm float-end" onclick="deleteGasto(${index})">Eliminar</button>
+                    <button class="btn btn-danger btn-sm float-end" onclick="deleteGasto(${index}, '${categoria}')">Eliminar</button>
                     <button class="btn btn-warning btn-sm float-end me-2" onclick="editGasto(${index})">Editar</button>
                 </li>`;
             });
+
             document.getElementById("lista").innerHTML = lis;
+            updateTotals(categoria, totalGastos);
         }
 
-        function deleteGasto(index) {
-            const gasto = gastos[index];
-            deuda -= gasto.cos;
-            localStorage.setItem("deuda", deuda);
+        function updateTotals(categoria, totalGastos) {
+            let disponible = pre - deuda;
+            document.getElementById("dis").innerHTML = "Disponible: " + disponible;
+            document.getElementById("gas").innerHTML = "Gastado: " + totalGastos;
+            document.getElementById("bar").max = pre;
+            document.getElementById("bar").value = totalGastos;
+        }
 
-            let pre2 = parseFloat(document.getElementById("dis").innerText.split(': ')[1]);
-            pre2 += gasto.cos;
+        function deleteGasto(index, categoria) {
 
+          Swal.fire({
+        title: "Seguro?? ",
+        showDenyButton: true,
+        confirmButtonText: "Tanto como que televisa le regalo 3 o mas campeonatos al america",
+        confirmButtonColor: '#20c997',
+        denyButtonText: "Tienes razon mejor no, pero a otra opción tiene razon"
+    
+    }).then ( async (result) => {
+        if (result.isConfirmed) {
+          deuda -= gastos[index].cos;
+            pre2 += gastos[index].cos;
             gastos.splice(index, 1);
+            localStorage.setItem("deuda", deuda);
             localStorage.setItem("gastos", JSON.stringify(gastos));
-            updateGastosList(document.getElementById("cate").value);
-            updateTotals();
+            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+            document.getElementById("gas").innerHTML = "Gastado: " + deuda;
+            document.getElementById("bar").max = pre;
+            document.getElementById("bar").value = deuda;
+            updateGastosList(categoria);
+        }
+    });
+
+        
         }
 
         function editGasto(index) {
+            editIndex = index;
             const gasto = gastos[index];
             document.getElementById("editCate").value = gasto.cat;
             document.getElementById("editCos").value = gasto.cos;
             document.getElementById("editDes").value = gasto.des;
-            editIndex = index;
-            var editModal = new bootstrap.Modal(document.getElementById('editGastoModal'));
-            editModal.show();
+            new bootstrap.Modal(document.getElementById('editGastoModal')).show();
         }
 
         document.getElementById("saveEdit").onclick = () => {
-            const oldGasto = gastos[editIndex];
-            const editedGasto = {
-                des: document.getElementById("editDes").value,
-                cat: document.getElementById("editCate").value,
-                cos: parseFloat(document.getElementById("editCos").value),
-                cate: getCategoryImage(document.getElementById("editCate").value)
-            };
+            const des = document.getElementById("editDes").value;
+            const cat = document.getElementById("editCate").value;
+            const cos = parseFloat(document.getElementById("editCos").value);
 
-            if (isNaN(editedGasto.cos) || editedGasto.cos <= 0) {
-                Swal.fire({ icon: "error", title: "Costo inválido" });
-                return;
+            if (isNaN(cos) || cos < 1) {
+                Swal.fire({ icon: "error", title: "El costo debe ser al menos 1" });
+            } else if (pre2 < cos) {
+                Swal.fire({ icon: "error", title: "No hay fondos suficientes" });
+            } else {
+                const gasto = gastos[editIndex];
+                deuda -= gasto.cos;
+                pre2 += gasto.cos;
+                deuda += cos;
+                pre2 -= cos;
+
+                gasto.des = des;
+                gasto.cat = cat;
+                gasto.cos = cos;
+                gasto.cate = getCategoryImage(cat);
+
+                localStorage.setItem("deuda", deuda);
+                localStorage.setItem("gastos", JSON.stringify(gastos));
+
+                document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+                document.getElementById("gas").innerHTML = "Gastado: " + deuda;
+                document.getElementById("bar").max = pre;
+                document.getElementById("bar").value = deuda;
+
+                updateGastosList(document.getElementById("cate").value);
             }
-
-            pre2 = parseFloat(document.getElementById("dis").innerText.split(': ')[1]);
-
-            if (editedGasto.cos > (pre2 + oldGasto.cos)) {
-                Swal.fire({ icon: "error", title: "No hay suficiente presupuesto" });
-                return;
-            }
-
-            deuda = deuda - oldGasto.cos + editedGasto.cos;
-            localStorage.setItem("deuda", deuda);
-
-            pre2 = pre2 + oldGasto.cos - editedGasto.cos;
-            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
-
-            gastos[editIndex] = editedGasto;
-            localStorage.setItem("gastos", JSON.stringify(gastos));
-            updateGastosList(document.getElementById("cate").value);
-            updateTotals();
-            console.log(pre2);
         };
 
-        function getCategoryImage(categoria) {
-            switch (categoria) {
-                case "comida":
-                    return "img/comida.png";
-                case "ahorro":
-                    return "img/ahorro.png";
-                case "casa":
-                    return "img/casa.png";
-                case "ocio":
-                    return "img/ocio.png";
-                case "salud":
-                    return "img/salud.png";
-                case "suscripciones":
-                    return "img/sus.png";
-                    case "varios":
-                    return "img/varios.png";
-                default:
-                    return "";
-            }
-        }
+        document.getElementById("cate").onchange = () => {
+            updateGastosList(document.getElementById("cate").value);
+        };
 
         document.getElementById("btnpre").onclick = () => {
-            console.log(pre2);
             pre = parseFloat(document.getElementById("pre").value);
             pre2 = pre;
             if (isNaN(pre) || pre <= 0) {
-                Swal.fire({ icon: "error", title: "Más presupuesto" });
+                Swal.fire({ icon: "error", title: "El presupuesto debe ser mayor a 0" });
             } else {
                 document.getElementById("g").style = "background-color: rgb(235, 184, 184); width: 500px; visibility: visible; position: absolute; top: 100px; left: 700px";
                 document.getElementById("dp").style = "visibility: collapse;";
                 document.getElementById("presu").innerHTML = "Presupuesto: " + pre;
                 document.getElementById("dis").innerHTML = "Disponible: " + pre2;
-                console.log(pre2);
-                console.log(pre);
 
                 document.getElementById("guar").onclick = () => {
-                    var des = document.getElementById("des").value;
-                    var cat = document.getElementById("cate2").value;
-                    var cos = parseFloat(document.getElementById("cos").value);
-                    console.log(pre2);
-                    console.log(pre);
+                    const des = document.getElementById("des").value;
+                    const cat = document.getElementById("cate2").value;
+                    const cos = parseFloat(document.getElementById("cos").value);
 
-                    if (pre2 < cos) {
-                        Swal.fire({ icon: "error", title: "No hay fondos" });
+                    if (isNaN(cos) || cos < 1) {
+                        Swal.fire({ icon: "error", title: "El costo debe ser al menos 1" });
+                    } else if (pre2 < cos) {
+                        Swal.fire({ icon: "error", title: "No hay fondos suficientes" });
                     } else {
-                        console.log(pre2);
                         deuda += cos;
                         localStorage.setItem("deuda", deuda);
 
                         pre2 -= cos;
                         document.getElementById("dis").innerHTML = "Disponible: " + pre2;
 
-                        document.getElementById("gas").innerHTML = deuda;
+                        document.getElementById("gas").innerHTML = "Gastado: " + deuda;
                         document.getElementById("bar").max = pre;
                         document.getElementById("bar").value = deuda;
 
@@ -281,25 +284,31 @@
             }
         };
 
-        document.getElementById("cate").onchange = () => {
-            updateGastosList(document.getElementById("cate").value);
-        };
-
-        function updateTotals() {
-            let pre2 = pre - deuda;
-            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
-            document.getElementById("gas").innerHTML = deuda;
-            document.getElementById("bar").max = pre;
-            document.getElementById("bar").value = deuda;
+        function getCategoryImage(category) {
+            const images = {
+                comida: "img/comida.png",
+                ahorro: "img/ahorro.png",
+                casa: "img/casa.png",
+                ocio: "img/ocio.png",
+                salud: "img/salud.png",
+                varios: "img/varios.png",
+                suscripciones: "img/suscripciones.png"
+            };
+            return images[category] || "img/default.png";
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            updateGastosList(document.getElementById("cate").value);
-        });
-
-        document.getElementById("re").onclick = () => {
-            localStorage.clear();
-            location.reload();
+        
+        if (pre) {
+            document.getElementById("presu").innerHTML = "Presupuesto: " + pre;
+            document.getElementById("dis").innerHTML = "Disponible: " + pre2;
+            document.getElementById("gas").innerHTML = "Gastado: " + deuda;
+            document.getElementById("bar").max = pre;
+            document.getElementById("bar").value = deuda;
+            updateGastosList(document.getElementById("cate").value || "todos");
+        }
+        document.getElementById("re").onclick=()=>{
+          localStorage.clear();
+          location.reload();
         }
     </script>
 </body>
